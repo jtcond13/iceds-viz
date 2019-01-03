@@ -17,7 +17,17 @@ console.log(data);
  var path = d3.geoPath().projection(projection);
 
 svg.append("path")
-   .attr("d", path(data));
+   .attr("d", path(data))
+   .attr("stroke", "black")
+   .attr("fill", "#d9e2df")
+   .on("mouseover", function(d){
+      d3.select(this)
+      .attr("fill", "orange")})
+   .on("mouseout", function(d){
+      d3.select(this)
+      .attr("fill", "#d9e2df")
+       })
+   
 
 
 });
