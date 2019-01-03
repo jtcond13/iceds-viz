@@ -4,7 +4,7 @@ d3.json('data/us_region.json').then(function(data) {
 
 
 
-console.log(data);
+
 
 // var width = 500;
 // var height = 200;
@@ -16,17 +16,23 @@ console.log(data);
     
  var path = d3.geoPath().projection(projection);
 
-svg.append("path")
-   .attr("d", path(data))
+
+ data.geometries.forEach(element => {
+   
+   svg.append("path")
+   .attr("d", path(element))
    .attr("stroke", "black")
    .attr("fill", "#d9e2df")
-   .on("mouseover", function(d){
+   .on("mouseover", function(){
       d3.select(this)
       .attr("fill", "orange")})
-   .on("mouseout", function(d){
+   .on("mouseout", function(){
       d3.select(this)
       .attr("fill", "#d9e2df")
        })
+
+});
+
    
 
 
