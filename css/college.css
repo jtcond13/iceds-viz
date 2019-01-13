@@ -1,0 +1,43 @@
+html {
+    height: 100vh;
+  }
+body {
+    height: inherit;
+  }
+svg {
+    width: 100%;
+    height: 100vh;
+    border-style: solid;
+  }
+.screen1 { 
+    display: grid;
+    grid-template-columns: 1fr 10fr 1fr;
+    grid-template-rows: 1fr 10fr 1fr;
+    height: 100vh;
+    position: relative;
+  }
+.screen2 { 
+    display: grid;
+    grid-template-columns: 2fr 2fr 2fr .5fr 2fr 2fr 2fr;
+    grid-template-rows: 1fr 6fr 10fr;
+    height: 100vh;
+    position: relative;
+  }
+#header {
+    grid-column: 2 / 2;
+    grid-row: 1 / 1;
+    font-size: 1.5em;
+  }
+.content {
+    grid-column: 2 / 2;
+    grid-row: 2 / 2;
+    /* Adding units to prevent weird Safari cut-off */
+    height: 90vh;
+  } 
+.map {
+    grid-column: 1 / 4;
+    grid-row: 3 / 3;
+    /* Adding units to prevent weird Safari cut-off */
+    height: 72.5vh;
+}
+
