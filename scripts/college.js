@@ -24,7 +24,10 @@ d3.json('data/us_features.json').then(function(data) {
       })
       .on("click", function(){
          clicked(element);
-      })   
+      })
+      
+
+
    });
 
 
@@ -47,28 +50,53 @@ d3.json('data/us_features.json').then(function(data) {
       d3.select(".content")
       .classed("content", false)
       .classed("map", true); 
+
    
       var svg = d3.select(".map").append("svg");
-      var svgBox = document.getElementsByTagName("svg")[0];
- 
+      var svgBox = document.getElementsByTagName("svg")[0];      
+      var path = d3.geoPath().projection(projection);
+
+
       var centroid = path.centroid(region.geometry);
 
-      var yAdjust = (function() { 
-                  newHeight = svgBox.getBoundingClientRect()['height'] / 2 - centroid[1];
+      function yTranslate(factor) {
+                  newHeight = svgBox.getBoundingClientRect()['height'] / 2  - (centroid[1] * factor);
                   return newHeight;
-      })();
+      }
 
-      var xAdjust = (function() { 
-                  newWidth = svgBox.getBoundingClientRect()['width'] / 2 - centroid[0];
+      function xTranslate(factor) {
+                  newWidth = svgBox.getBoundingClientRect()['width'] / 2 - (centroid[0] * factor);
                   return newWidth;
-      })();
+      }
 
-      svg.append("path")
-         .attr("d", path(region.geometry))
-         .attr("stroke", "white")
-         .attr("fill", "#d9e2df")
-         .attr("class", region.properties['name'])
-         .attr("transform", "translate(" + xAdjust + "," + yAdjust + ")");
+
+         svg.append("path")
+            .attr("d", path(region.geometry))
+            .attr("stroke", "white")
+            .attr("fill", "#d9e2df")
+            .attr("class", region.properties['name'])
+            .attr("transform", function() {
+               if(this.getAttribute('class') == 'Northeast'){
+                 var scale_factor = 2.3
+               }
+               else if(this.getAttribute('class') == 'West'){
+                  var scale_factor = .8
+               }
+               else if(this.getAttribute('class') == 'Midwest'){
+                  var scale_factor = 1.5
+               }
+               else{
+                  var scale_factor = 1.2
+               }
+               return `matrix(${scale_factor} 0 0 ${scale_factor} ${xTranslate(scale_factor)} ${yTranslate(scale_factor)})`
+            });
+      
+      addColleges(region)
+   }
+
+   function addColleges(my_region){
+      my_region
+      
    }
 
    
