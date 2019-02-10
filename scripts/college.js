@@ -26,30 +26,28 @@ d3.json('data/us_features.json').then(function(data) {
          clicked(element);
       })
       
-
-
-   });
+});
 
 
    function clicked(region){
-
+      
       d3.select('#header')
-       .transition().remove()
+       .remove()
 
       d3.selectAll("svg")
-       .transition().remove()
+       .remove()
          
-      setTimeout(changeLayout(region), 3000)      
+      changeLayout(region)  
    };
 
    function changeLayout(region) {
       d3.select(".screen1")
-      .classed("screen1", false)
-      .classed("screen2", true); 
+         .classed("screen1", false)
+         .classed("screen2", true); 
       
       d3.select(".content")
-      .classed("content", false)
-      .classed("map", true); 
+         .classed("content", false)
+         .classed("map", true); 
 
    
       var svg = d3.select(".map").append("svg");
@@ -73,14 +71,14 @@ d3.json('data/us_features.json').then(function(data) {
          svg.append("path")
             .attr("d", path(region.geometry))
             .attr("stroke", "white")
-            .attr("fill", "#d9e2df")
+            .attr("fill", "#eaedf2")
             .attr("class", region.properties['name'])
             .attr("transform", function() {
                if(this.getAttribute('class') == 'Northeast'){
                  var scale_factor = 2.3
                }
                else if(this.getAttribute('class') == 'West'){
-                  var scale_factor = .8
+                  var scale_factor = .95
                }
                else if(this.getAttribute('class') == 'Midwest'){
                   var scale_factor = 1.5
@@ -91,15 +89,48 @@ d3.json('data/us_features.json').then(function(data) {
                return `matrix(${scale_factor} 0 0 ${scale_factor} ${xTranslate(scale_factor)} ${yTranslate(scale_factor)})`
             });
       
-      addColleges(region)
-   }
+         d3.csv('data/college.csv').then(function(college) {
+     
+               var local_colleges = college.filter((value) => {
+                  return d3.geoContains(region.geometry, [value['longitude'], value['latitude']])
+               })
+         
 
-   function addColleges(my_region){
-      my_region
+               svg.selectAll('circle')
+                 .data(local_colleges)
+                 .enter()
+                 .append('circle')
+                 .attr("cx", function(d){
+                     return projection([d.longitude, d.latitude])[0];
+                 })
+                 .attr("cy", function(d){
+                     return projection([d.longitude, d.latitude])[1];
+                 })
+                 .attr("r", 2.5)
+                 .attr("transform", function() {
+                  if(region.properties['name'] == 'Northeast'){
+                    var scale_factor = 2.3
+                  }
+                  else if(region.properties['name'] == 'West'){
+                     var scale_factor = .95
+                  }
+                  else if(region.properties['name'] == 'Midwest'){
+                     var scale_factor = 1.5
+                  }
+                  else{
+                     var scale_factor = 1.2
+                  }
+                  return `matrix(${scale_factor} 0 0 ${scale_factor} ${xTranslate(scale_factor)} ${yTranslate(scale_factor)})`
+                  })
+                 .style("fill", "blue")
+                 .style("opacity", .4)
+               //   .on("mouseover", function(d){
+                   
+               //   })
+               
+         })
       
    }
-
-   
 
 });
 

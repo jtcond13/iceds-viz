@@ -3,7 +3,9 @@ library(dplyr)
 library(magrittr)
 library(jsonlite)
 
-# ddata <- read.csv('ipeds_data.csv')
+setwd('/Users/jackcondon/Documents/dataviz-comp/data/')
+
+ddata <- read.csv('/Users/jackcondon/Documents/dataviz-comp/data/ipeds_data.csv')
 names(ddata) %<>% tolower() 
 
 ndata <- ddata[,1:8] %>% cbind.data.frame(ddata[,73:75])
@@ -39,6 +41,8 @@ ndata %<>% cbind.data.frame(ddata$percent.admitted...total)
 names(ndata)[12:18] <- c('percent_minority', 'cityscape', 'total.enrollment', 'avg_sat', 'tuition_growth', 'admission_rate', 'avg_act')
 ndata %<>% mutate(admission_rate = admission_rate * .01)
 ndata %<>% mutate(avg_act = round(avg_act))
+ndata %<>% select(-year, -geographic.region, -fips.state.code) %>% rename(longitude = longitude.location.of.institution, latitude = latitude.location.of.institution)
+ndata %<>% filter(!is.na(avg_act) & !is.na(avg_sat)) %>% filter(total.enrollment > 1000)
 
-final <- toJSON(ndata, dataframe = 'rows', factor = 'string', null = 'null', na = 'null', pretty=F)
-write_json(final, 'college.json')
+write_csv(ndata, 'college.csv')
+
