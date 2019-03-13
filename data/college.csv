@@ -191,11 +191,6 @@ id.number,name,zip.code,highest.degree.offered,county.name,longitude,latitude,st
 141237,Truett-McConnell College,30528,Bachelor's degree,White County,-83.745972,34.594437,Georgia,0.29,Rural: Fringe,1606,1e3,19.5,4.536609112960677e-4,81
 141264,Valdosta State University,31698,Doctor's degree - research/scholarship and professional practice,Lowndes County,-83.289925,30.849236,Georgia,0.44,City: Small,11885,1075,22,2.893633621399361e-4,55
 141334,University of West Georgia,30118-0001,Doctor's degree - research/scholarship,Carroll County,-85.099007,33.574421,Georgia,0.44,Town: Fringe,11929,990,20,3.386483887034686e-4,54
-141486,Chaminade University of Honolulu,96816-1578,Master's degree,Honolulu County,-157.807642,21.290274,Hawaii,0.84,City: Large,2752,1015,21,4.2338486823656707e-4,84
-141565,University of Hawaii at Hilo,96720-4091,Doctor's degree - research/scholarship and professional practice,Hawaii County,-155.081329,19.701854,Hawaii,0.76,Town: Remote,4043,1025,21,6.466046981848561e-4,75
-141574,University of Hawaii at Manoa,96822-2217,Doctor's degree - research/scholarship and professional practice,Honolulu County,-157.816607,21.292648,Hawaii,0.78,City: Large,20006,1140,24,6.954220337099959e-4,80
-141644,Hawaii Pacific University,96813,Master's degree,Honolulu County,-157.859411,21.31028,Hawaii,0.71,City: Large,6736,1050,22,8.452165360763564e-4,64
-141981,University of Hawaii-West Oahu,96707-4507,Bachelor's degree,Honolulu County,-158.062444,21.353359,Hawaii,0.89,Suburb: Large,2361,940,19,0.0010736334739880626,76
 142115,Boise State University,83725,Doctor's degree - research/scholarship,Ada County,-116.205789,43.604403,Idaho,0.24,City: Midsize,21981,1095,23,5.885773812369699e-4,78
 142285,University of Idaho,83844-2282,Doctor's degree - research/scholarship and professional practice,Latah County,-117.024296,46.726894,Idaho,0.22,Rural: Fringe,12024,1125,23,6.492688383594492e-4,66
 142294,The College of Idaho,83605-4432,Master's degree,Canyon County,-116.676838,43.652653,Idaho,0.38,Suburb: Midsize,1122,1105,24,4.0077944020143973e-4,91
@@ -958,7 +953,6 @@ id.number,name,zip.code,highest.degree.offered,county.name,longitude,latitude,st
 229780,Wayland Baptist University,79072,Master's degree,Hale County,-101.729564,34.186673,Texas,0.53,Town: Remote,6222,985,20,5.146208427364641e-4,99
 229814,West Texas A & M University,79016-0001,Doctor's degree - research/scholarship,Randall County,-101.9158,34.981996,Texas,0.35000000000000003,Town: Fringe,8377,1020,21.5,3.6690162252749347e-4,74
 230038,Brigham Young University-Provo,84602,Doctor's degree - research/scholarship and professional practice,Utah County,-111.649281,40.250851,Utah,0.17,City: Midsize,31123,1305,28.5,3.1430152029267246e-4,49
-230047,Brigham Young University-Hawaii,96762-1294,Bachelor's degree,Honolulu County,-157.925358,21.641172,Hawaii,0.66,Town: Fringe,2882,1110,23.5,3.27855688673131e-4,36
 230603,Southern Utah University,84720,Master's degree,Iron County,-113.070146,37.674617,Utah,0.18,Town: Remote,7745,1100,23,7.745990691223193e-4,57
 230728,Utah State University,84322-1400,Doctor's degree - research/scholarship and professional practice,Cache County,-111.81391,41.740748,Utah,0.25,City: Small,27812,1175,23.5,5.12757617737698e-4,97
 230764,University of Utah,84112-9008,Doctor's degree - research/scholarship and professional practice,Salt Lake County,-111.846044,40.762484,Utah,0.31,City: Midsize,32077,1200,24,5.938226407224012e-4,82

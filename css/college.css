@@ -17,7 +17,7 @@ svg {
   }
 .screen2 { 
     display: grid;
-    grid-template-columns: 2fr 2fr 2fr .5fr 2fr 2fr 2fr;
+    grid-template-columns: 2fr 2fr 4.5fr .25fr 2fr 2fr 2fr;
     grid-template-rows: 1fr 6fr 10fr;
     height: 100vh;
     position: relative;

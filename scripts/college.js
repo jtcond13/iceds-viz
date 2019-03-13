@@ -67,34 +67,64 @@ d3.json('data/us_features.json').then(function(data) {
                   return newWidth;
       }
 
+      function getTransformFactor(my_region) {
+         if(my_region.properties['name'] == 'Northeast'){
+            var scale_factor = 1.5
+          }
+          else if(my_region.properties['name'] == 'West'){
+             var scale_factor = 1.1
+          }
+          else if(my_region.properties['name'] == 'Midwest'){
+             var scale_factor = 1.5
+          }
+          else{
+             var scale_factor = 1.2
+          }
+          return `matrix(${scale_factor} 0 0 ${scale_factor} ${xTranslate(scale_factor)} ${yTranslate(scale_factor)})`
+      }
+       
+         
+      d3.json('data/state_features.json').then(function(state){
 
-         svg.append("path")
-            .attr("d", path(region.geometry))
-            .attr("stroke", "white")
-            .attr("fill", "#eaedf2")
-            .attr("class", region.properties['name'])
-            .attr("transform", function() {
-               if(this.getAttribute('class') == 'Northeast'){
-                 var scale_factor = 2.3
-               }
-               else if(this.getAttribute('class') == 'West'){
-                  var scale_factor = .95
-               }
-               else if(this.getAttribute('class') == 'Midwest'){
-                  var scale_factor = 1.5
-               }
-               else{
-                  var scale_factor = 1.2
-               }
-               return `matrix(${scale_factor} 0 0 ${scale_factor} ${xTranslate(scale_factor)} ${yTranslate(scale_factor)})`
-            });
-      
+         // Removing Alaska and Hawaii to keep scale reasonable in the West
+            const regions = {
+               South: ["Maryland", "District of Columbia", "West Virginia", "Kentucky", "Virginia", "North Carolina", "Tennessee", 
+                        "South Carolina", "Georgia", "Florida", "Alabama", "Mississippi", "Arkansas", "Louisiana", "Oklahoma", "Texas"],
+               West: ["Montana", "Wyoming", "Colorado", "New Mexico", "Arizona", "Utah", "Idaho", "Washington", "Oregon", "Nevada", "California"],
+               Northeast: ["Maine", "New Hampshire", "Vermont", "Massachusetts", "Rhode Island", "Connecticut", "New York", "New Jersey", "Pennsylvania"],
+               Midwest: ["Ohio", "Michigan", "Indiana", "Illinois", "Wisconsin", "Minnesota", "North Dakota", "South Dakota", "Nebraska", "Kansas", "Iowa", "Missouri"]
+            }
+
+            var local_states = state.features.filter((value) => {
+               var current_region = region.properties['name']
+               return (regions[current_region].indexOf(value.properties.NAME) > -1)
+            })
+            
          d3.csv('data/college.csv').then(function(college) {
      
                var local_colleges = college.filter((value) => {
                   return d3.geoContains(region.geometry, [value['longitude'], value['latitude']])
                })
-         
+                 
+               
+               svg.selectAll('text')
+                  .data(local_colleges)
+                  .enter()
+                  .append("text")
+                  .attr("x", function(d){
+                     return projection([d.longitude, d.latitude])[0] - 35;
+                   })
+                  .attr("y", function(d){
+                     return projection([d.longitude, d.latitude])[1] - 10;
+                   })
+                  .text( function (d) { return d.name })
+                  .attr("font-size", "10px")
+                  .attr("fill", "black")
+                  .attr("class", function(d){
+                     return(d.name.replace(/\s+/g, '').toLowerCase())
+                   })
+                  .attr("transform", getTransformFactor(region))
+                  .attr("opacity", 0)
 
                svg.selectAll('circle')
                  .data(local_colleges)
@@ -106,29 +136,51 @@ d3.json('data/us_features.json').then(function(data) {
                  .attr("cy", function(d){
                      return projection([d.longitude, d.latitude])[1];
                  })
-                 .attr("r", 2.5)
-                 .attr("transform", function() {
-                  if(region.properties['name'] == 'Northeast'){
-                    var scale_factor = 2.3
-                  }
-                  else if(region.properties['name'] == 'West'){
-                     var scale_factor = .95
-                  }
-                  else if(region.properties['name'] == 'Midwest'){
-                     var scale_factor = 1.5
-                  }
-                  else{
-                     var scale_factor = 1.2
-                  }
-                  return `matrix(${scale_factor} 0 0 ${scale_factor} ${xTranslate(scale_factor)} ${yTranslate(scale_factor)})`
-                  })
+                 .attr("r", function(){
+                     var r_factor;
+                     if(region.properties['name'] == 'Northeast'){
+                        var r_factor = 2
+                     }
+                     else if(region.properties['name'] == 'West'){
+                        var r_factor = 3.2
+                     }
+                     else if(region.properties['name'] == 'Midwest'){
+                        var r_factor = 2.5
+                     }
+                     else{
+                        var r_factor = 2.9
+                     }
+                     return r_factor
+                 })
+                 .attr("transform", getTransformFactor(region))
                  .style("fill", "blue")
-                 .style("opacity", .4)
-               //   .on("mouseover", function(d){
-                   
-               //   })
+                 .style("opacity", .5)
+                 .on("mouseover", function(d){
+                    var thisCollege = "." + d.name.replace(/\s+/g, '').toLowerCase();
+                    d3.selectAll(thisCollege)
+                      .style("opacity", 1) 
+                 })
+                 .on("mouseout", function(d){
+                     var thisCollege = "." + d.name.replace(/\s+/g, '').toLowerCase();
+                     d3.selectAll(thisCollege)
+                     .style("opacity", 0) 
+                 })
                
          })
+
+         local_states.forEach(element => {
+            
+               svg.append("path")
+                  .attr("d", path(element.geometry))
+                  .attr("stroke", "white")
+                  .attr("fill", "#d9e2df")
+                  .attr("opacity", .6)
+                  .attr("transform", getTransformFactor(region));
+            });
+
+        })
+      
+
       
    }
 

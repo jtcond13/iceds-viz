@@ -42,7 +42,7 @@ names(ndata)[12:18] <- c('percent_minority', 'cityscape', 'total.enrollment', 'a
 ndata %<>% mutate(admission_rate = admission_rate * .01)
 ndata %<>% mutate(avg_act = round(avg_act))
 ndata %<>% select(-year, -geographic.region, -fips.state.code) %>% rename(longitude = longitude.location.of.institution, latitude = latitude.location.of.institution)
-ndata %<>% filter(!is.na(avg_act) & !is.na(avg_sat)) %>% filter(total.enrollment > 1000)
+ndata %<>% filter(!is.na(avg_act) & !is.na(avg_sat)) %>% filter(total.enrollment > 1000) %>% filter(state.abbreviation != 'Hawaii')
 
 write_csv(ndata, 'college.csv')
 
