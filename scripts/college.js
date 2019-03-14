@@ -69,7 +69,7 @@ d3.json('data/us_features.json').then(function(data) {
 
       function getTransformFactor(my_region) {
          if(my_region.properties['name'] == 'Northeast'){
-            var scale_factor = 1.5
+             var scale_factor = 1.9
           }
           else if(my_region.properties['name'] == 'West'){
              var scale_factor = 1.1
@@ -82,8 +82,7 @@ d3.json('data/us_features.json').then(function(data) {
           }
           return `matrix(${scale_factor} 0 0 ${scale_factor} ${xTranslate(scale_factor)} ${yTranslate(scale_factor)})`
       }
-       
-         
+
       d3.json('data/state_features.json').then(function(state){
 
          // Removing Alaska and Hawaii to keep scale reasonable in the West
@@ -106,68 +105,100 @@ d3.json('data/us_features.json').then(function(data) {
                   return d3.geoContains(region.geometry, [value['longitude'], value['latitude']])
                })
                  
-               
-               svg.selectAll('text')
-                  .data(local_colleges)
-                  .enter()
-                  .append("text")
-                  .attr("x", function(d){
-                     return projection([d.longitude, d.latitude])[0] - 35;
-                   })
-                  .attr("y", function(d){
-                     return projection([d.longitude, d.latitude])[1] - 10;
-                   })
-                  .text( function (d) { return d.name })
-                  .attr("font-size", "10px")
-                  .attr("fill", "black")
-                  .attr("class", function(d){
-                     return(d.name.replace(/\s+/g, '').toLowerCase())
-                   })
-                  .attr("transform", getTransformFactor(region))
-                  .attr("opacity", 0)
+         var foo = d3.local()
 
-               svg.selectAll('circle')
-                 .data(local_colleges)
-                 .enter()
-                 .append('circle')
-                 .attr("cx", function(d){
-                     return projection([d.longitude, d.latitude])[0];
-                 })
-                 .attr("cy", function(d){
-                     return projection([d.longitude, d.latitude])[1];
-                 })
-                 .attr("r", function(){
-                     var r_factor;
-                     if(region.properties['name'] == 'Northeast'){
-                        var r_factor = 2
-                     }
-                     else if(region.properties['name'] == 'West'){
-                        var r_factor = 3.2
-                     }
-                     else if(region.properties['name'] == 'Midwest'){
-                        var r_factor = 2.5
-                     }
-                     else{
-                        var r_factor = 2.9
-                     }
-                     return r_factor
-                 })
-                 .attr("transform", getTransformFactor(region))
-                 .style("fill", "blue")
-                 .style("opacity", .5)
-                 .on("mouseover", function(d){
-                    var thisCollege = "." + d.name.replace(/\s+/g, '').toLowerCase();
-                    d3.selectAll(thisCollege)
-                      .style("opacity", 1) 
-                 })
-                 .on("mouseout", function(d){
-                     var thisCollege = "." + d.name.replace(/\s+/g, '').toLowerCase();
-                     d3.selectAll(thisCollege)
-                     .style("opacity", 0) 
-                 })
+         // Build tooltip
+         // Inspiration from Stack Overflow: https://stackoverflow.com/questions/20644415/d3-appending-text-to-a-svg-rectangle
                
+               svg.selectAll('g')
+                        .data(local_colleges)
+                        .enter().append('g')
+                        .attr("class", function(d){
+                           return(d.name.replace(/\s+|'|-/g, '').toLowerCase())
+                        })
+                        .attr("opacity", 0)
+                  .append("text")
+                        .attr("x", function(d){
+                                 return projection([d.longitude, d.latitude])[0] + 10;
+                        })
+                        .attr("y", function(d){
+                           return projection([d.longitude, d.latitude])[1];
+                        })
+                        .attr("class", function(d){
+                           return(d.name.replace(/\s+|'|-/g, '').toLowerCase())
+                        })
+                        .attr("transform", getTransformFactor(region))
+                        .text( function (d) { return d.name })
+                        .attr("font-size", "10px")
+                        .attr("z-index", 20)
+                        .attr("opacity", 0)
+
+               svg.selectAll('g')
+                  .append('rect')
+                        .attr("x", function(d){
+                           return projection([d.longitude, d.latitude])[0] + 10;
+                        })
+                        .attr("y", function(d){
+                           return projection([d.longitude, d.latitude])[1] - 10;
+                        })
+                        .attr("width", function(d){
+                           var tmp = d3.select(this).node().previousSibling.getBBox();
+                           return tmp['width']
+                        })
+                        .attr("height", function(d) {
+                           var tmp = d3.select(this).node().previousSibling.getBBox();
+                           return tmp['height']
+                        })
+                        .attr("stroke", "green")
+                        .attr("transform", getTransformFactor(region))
+                        .style("fill", "gray")
+                        .attr("opacity", .59)
+                  
+         // add the dots to the map
+               svg.selectAll('circle')
+                        .data(local_colleges)
+                        .enter()
+                  .append('circle')
+                  .attr("cx", function(d){
+                        return projection([d.longitude, d.latitude])[0];
+                  })
+                  .attr("cy", function(d){
+                        return projection([d.longitude, d.latitude])[1];
+                  })
+                  .attr("r", function(){
+                        var r_factor;
+                        if(region.properties['name'] == 'Northeast'){
+                           var r_factor = 2
+                        }
+                        else if(region.properties['name'] == 'West'){
+                           var r_factor = 3.2
+                        }
+                        else if(region.properties['name'] == 'Midwest'){
+                           var r_factor = 2.5
+                        }
+                        else{
+                           var r_factor = 2.9
+                        }
+                        return r_factor
+                  })
+                  .attr("transform", getTransformFactor(region))
+                  .style("fill", "blue")
+                  .style("opacity", .5)
+                  .on("mouseover", function(d){
+                     var thisCollege = "." + d.name.replace(/\s+|'|-/g, '').toLowerCase();
+                     d3.selectAll(thisCollege)
+                        .style("opacity", 1) 
+                  })
+                  .on("mouseout", function(d){
+                     var thisCollege = "." + d.name.replace(/\s+|'|-/g, '').toLowerCase();
+                     d3.selectAll(thisCollege)
+                        .style("opacity", 0) 
+                  })
+
+            
          })
 
+         // add the states for the selected region
          local_states.forEach(element => {
             
                svg.append("path")
