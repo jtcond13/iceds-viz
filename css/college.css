@@ -17,8 +17,8 @@ svg {
   }
 .screen2 { 
     display: grid;
-    grid-template-columns: 2fr 2fr 4.5fr .25fr 2fr 2fr 2fr;
-    grid-template-rows: 1fr 6fr 10fr;
+    grid-template-columns: 1fr 4.5fr 2.5fr .25fr 2fr 2fr 2fr .25fr;
+    grid-template-rows: 1fr 4fr 10.5fr;
     height: 100vh;
     position: relative;
   }
@@ -38,6 +38,13 @@ svg {
     grid-row: 3 / 3;
     /* Adding units to prevent weird Safari cut-off */
     height: 72.5vh;
+}
+.button-container {
+    grid-column: 1 / 8;
+    grid-row: 2 / 2;
+    display: flex;
+    justify-content: space-around;
+    align-items: safe center;
 }
 
 

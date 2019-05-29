@@ -1,3 +1,5 @@
+var _ = require('lodash');
+var d3 = require('d3');
 
 d3.json('data/us_features.json').then(function(data) {
 
@@ -14,19 +16,19 @@ d3.json('data/us_features.json').then(function(data) {
       .attr("class", element.properties['name'])
       .on("mouseover", function(){
          d3.select(this)
-         .attr("fill", "#82edcd")
+            .attr("fill", "#82edcd")
          d3.select('.region').text(element.properties['name'])
       })
       .on("mouseout", function(){
          d3.select(this)
-         .attr("fill", "#d9e2df")
+            .attr("fill", "#d9e2df")
          d3.select('.region').text('')
       })
       .on("click", function(){
          clicked(element);
       })
       
-});
+   });
 
 
    function clicked(region){
@@ -48,12 +50,13 @@ d3.json('data/us_features.json').then(function(data) {
       d3.select(".content")
          .classed("content", false)
          .classed("map", true); 
-
-   
+            
+      
       var svg = d3.select(".map").append("svg");
       var svgBox = document.getElementsByTagName("svg")[0];      
       var path = d3.geoPath().projection(projection);
 
+    
 
       var centroid = path.centroid(region.geometry);
 
@@ -69,10 +72,10 @@ d3.json('data/us_features.json').then(function(data) {
 
       function getTransformFactor(my_region) {
          if(my_region.properties['name'] == 'Northeast'){
-             var scale_factor = 1.9
+             var scale_factor = 1.7
           }
           else if(my_region.properties['name'] == 'West'){
-             var scale_factor = 1.1
+             var scale_factor = 1.2
           }
           else if(my_region.properties['name'] == 'Midwest'){
              var scale_factor = 1.5
@@ -80,8 +83,9 @@ d3.json('data/us_features.json').then(function(data) {
           else{
              var scale_factor = 1.2
           }
-          return `matrix(${scale_factor} 0 0 ${scale_factor} ${xTranslate(scale_factor)} ${yTranslate(scale_factor)})`
+            return `matrix(${scale_factor} 0 0 ${scale_factor} ${xTranslate(scale_factor)} ${yTranslate(scale_factor)})`
       }
+
 
       d3.json('data/state_features.json').then(function(state){
 
@@ -105,57 +109,155 @@ d3.json('data/us_features.json').then(function(data) {
                   return d3.geoContains(region.geometry, [value['longitude'], value['latitude']])
                })
                  
-         var foo = d3.local()
+          // add the states for the selected region
+         local_states.forEach(element => {
+            
+               svg.append("path")
+                  .attr("d", path(element.geometry))
+                  .attr("stroke", "white")
+                  .attr("fill", "#d9e2df")
+                  .attr("opacity", .6)
+                  .attr("transform", getTransformFactor(region))
+            });       
 
-         // Build tooltip
-         // Inspiration from Stack Overflow: https://stackoverflow.com/questions/20644415/d3-appending-text-to-a-svg-rectangle
+             d3.select(".screen2")
+                  .append("div")
+                  .attr("class", "colleges-table")
+                  .style("grid-column", "4 / 8")
+                  .style("grid-row", "3 / 3")
+                  .style("overflow-x", "auto")
+            
+            var my_variables = ['name', 'total.enrollment', 'avg_sat', 'avg_act', 'three_year_tuition_growth', 'admission_rate']
+
+            var table_variables = Object.keys(local_colleges[0]).filter((value) => {
+               return my_variables.includes(value)
+            });
+
+
+            var table_data = _.map(local_colleges, function(x) {
+               return _.pick(x, my_variables)
+            })
+         
+   // Format variables
+            var table_variables = Object.keys(table_data[0]).map(x => {
+               var y = x.replace(/_|\./g, ' ')
+               if(y.search(/\s/g) < 0){
+                  return y.slice(0,1).toUpperCase() + y.slice(1)
+               }
+               else if(y.search(/sat|act/) > 0){
+                  var z = y.split(' ')
+                  return z[0].slice(0,1).toUpperCase() + z[0].slice(1) + ' ' + z[1].slice(0,1).toUpperCase() + z[1].slice(1).toUpperCase() 
+               }
+               else if(y.search(/tuition/) > 0){
+                  var z = y.split(' ')
+                   console.log(z)
+                  return "2010 - 2013 " + z[2].slice(0,1).toUpperCase() + z[2].slice(1) + ' ' + z[3].slice(0,1).toUpperCase() + z[3].slice(1) 
+               }
+               else {
+                  var z = y.split(' ')
+                  return z[0].slice(0,1).toUpperCase() + z[0].slice(1) + ' ' + z[1].slice(0,1).toUpperCase() + z[1].slice(1)
+               }  
+            })
+
+   // Build table 
+            d3.select(".colleges-table")
+                  .append("table")
+                     .append("tbody")
+                          .selectAll("tr")
+                          .data(table_data)
+                          .enter()
+                          .append("tr")
+
+   // Data Rows                      
+            d3.selectAll("tr").each(function(d){
+                        d3.select(this).selectAll("td")
+                        .data(function(d) { return Object.values(d); })
+                        .enter().append("td")
+                           .text(function(d) { return d; });
+            })
+
+   // Header Rows
+            d3.select(".colleges-table > table")
+                     .append("thead")
+                     .append("tr")
+                        .selectAll("td")
+                           .data(table_variables)
+                           .enter().append("td")
+                              .text(function(d) { return d; })
+                     .style("font-weight", "bold")
+
+   // Buttons
+      var btn_variables = table_variables.slice(1, 6)
+
+            d3.select(".screen2")
+                     .append("div")
+                        .attr("class", "button-container")
+                           .selectAll("button")
+                              .data(btn_variables)
+                              .enter().append("button")
+                                 .text(function(d){  return d; })
+                           .style("padding","15.5px")
+                           .style("font-size", "15px");
+            
+            d3.selectAll('button')
+               .call(d3.drag()
+                  .on("drag", dragged))
+
+      function dragged(d) {
+         console.log(this.parentNode)
+         d.x = d3.event.x, d.y = d3.event.y;
+
+      }
+
+   // Build tooltip
+  // Inspiration from Stack Overflow: https://stackoverflow.com/questions/20644415/d3-appending-text-to-a-svg-rectangle
                
-               svg.selectAll('g')
-                        .data(local_colleges)
-                        .enter().append('g')
-                        .attr("class", function(d){
-                           return(d.name.replace(/\s+|'|-/g, '').toLowerCase())
-                        })
-                        .attr("opacity", 0)
-                  .append("text")
-                        .attr("x", function(d){
-                                 return projection([d.longitude, d.latitude])[0] + 10;
-                        })
-                        .attr("y", function(d){
-                           return projection([d.longitude, d.latitude])[1];
-                        })
-                        .attr("class", function(d){
-                           return(d.name.replace(/\s+|'|-/g, '').toLowerCase())
-                        })
-                        .attr("transform", getTransformFactor(region))
-                        .text( function (d) { return d.name })
-                        .attr("font-size", "10px")
-                        .attr("z-index", 20)
-                        .attr("opacity", 0)
+         svg.selectAll('g')
+               .data(local_colleges)
+               .enter().append('g')
+               .attr("class", function(d){
+                  return(d.name.replace(/\s+|'|-/g, '').toLowerCase())
+               })
+               .attr("opacity", 0)
+         .append("text")
+               .attr("x", function(d){
+                        return projection([d.longitude, d.latitude])[0] - 30;
+               })
+               .attr("y", function(d){
+                  return projection([d.longitude, d.latitude])[1] - 10;
+               })
+               .attr("class", function(d){
+                  return(d.name.replace(/\s+|'|-/g, '').toLowerCase())
+               })
+               .attr("transform", getTransformFactor(region))
+               .text( function (d) { 
+                  return d.name })
+               .attr("font-size", "10px")
+               .attr("z-index", 20)
 
-               svg.selectAll('g')
-                  .append('rect')
-                        .attr("x", function(d){
-                           return projection([d.longitude, d.latitude])[0] + 10;
-                        })
-                        .attr("y", function(d){
-                           return projection([d.longitude, d.latitude])[1] - 10;
-                        })
-                        .attr("width", function(d){
-                           var tmp = d3.select(this).node().previousSibling.getBBox();
-                           return tmp['width']
-                        })
-                        .attr("height", function(d) {
-                           var tmp = d3.select(this).node().previousSibling.getBBox();
-                           return tmp['height']
-                        })
-                        .attr("stroke", "green")
-                        .attr("transform", getTransformFactor(region))
-                        .style("fill", "gray")
-                        .attr("opacity", .59)
-                  
-         // add the dots to the map
-               svg.selectAll('circle')
+      svg.selectAll('g')
+         .append('rect')
+               .attr("x", function(d){
+                  return projection([d.longitude, d.latitude])[0] - 30;
+               })
+               .attr("y", function(d){
+                  return projection([d.longitude, d.latitude])[1] - 20;
+               })
+               .attr("width", function(){
+                  var tmp = d3.select(this).node().previousSibling.getBBox();
+                  return tmp['width']
+               })
+               .attr("height", function() {
+                  var tmp = d3.select(this).node().previousSibling.getBBox();
+                  return tmp['height']
+               })
+               .attr("stroke", "green")
+               .attr("transform", getTransformFactor(region))
+               .style("fill", "gray")
+               .attr("opacity", .4)
+
+               // add the dots to the map
+         svg.selectAll('circle')
                         .data(local_colleges)
                         .enter()
                   .append('circle')
@@ -194,23 +296,13 @@ d3.json('data/us_features.json').then(function(data) {
                      d3.selectAll(thisCollege)
                         .style("opacity", 0) 
                   })
-
-            
          })
 
-         // add the states for the selected region
-         local_states.forEach(element => {
-            
-               svg.append("path")
-                  .attr("d", path(element.geometry))
-                  .attr("stroke", "white")
-                  .attr("fill", "#d9e2df")
-                  .attr("opacity", .6)
-                  .attr("transform", getTransformFactor(region));
-            });
+         
 
         })
       
+         
 
       
    }

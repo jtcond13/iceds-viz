@@ -1,0 +1,26 @@
+{
+  "name": "dataviz-comp",
+  "version": "1.0.0",
+  "description": "\"My dataviz app\"",
+  "main": "index.js",
+  "dependencies": {
+    "browserify": "^16.2.3",
+    "d3": "^5.9.2",
+    "draggable": "^4.2.0",
+    "lodash": "^4.17.11"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jtcond13/iceds-viz.git"
+  },
+  "author": "Jack Condon",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jtcond13/iceds-viz/issues"
+  },
+  "homepage": "https://github.com/jtcond13/iceds-viz#readme"
+}
