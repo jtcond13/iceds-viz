@@ -6,8 +6,8 @@
   "dependencies": {
     "browserify": "^16.2.3",
     "d3": "^5.9.2",
-    "draggable": "^4.2.0",
-    "lodash": "^4.17.11"
+    "lodash": "^4.17.11",
+    "sortablejs": "^1.9.0"
   },
   "devDependencies": {},
   "scripts": {

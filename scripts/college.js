@@ -1,5 +1,6 @@
 var _ = require('lodash');
 var d3 = require('d3');
+var Sortable = require('sortablejs')
 
 d3.json('data/us_features.json').then(function(data) {
 
@@ -150,7 +151,6 @@ d3.json('data/us_features.json').then(function(data) {
                }
                else if(y.search(/tuition/) > 0){
                   var z = y.split(' ')
-                   console.log(z)
                   return "2010 - 2013 " + z[2].slice(0,1).toUpperCase() + z[2].slice(1) + ' ' + z[3].slice(0,1).toUpperCase() + z[3].slice(1) 
                }
                else {
@@ -188,26 +188,54 @@ d3.json('data/us_features.json').then(function(data) {
 
    // Buttons
       var btn_variables = table_variables.slice(1, 6)
+      var btn_ranks = ["1.", "2.", "3.", "4.", "5."]
 
-            d3.select(".screen2")
-                     .append("div")
-                        .attr("class", "button-container")
-                           .selectAll("button")
-                              .data(btn_variables)
-                              .enter().append("button")
-                                 .text(function(d){  return d; })
-                           .style("padding","15.5px")
-                           .style("font-size", "15px");
+      var btn_coll = _.map(btn_ranks, function(x, i){
+         return([x, btn_variables[i]])
+      })
+
+      btn_coll = _.flatten(btn_coll)
+
+     d3.select(".screen2")
+               .append("div")
+                  .attr("class", "button-container")
+                     .selectAll("div")
+                      .data(btn_coll)
+                       .enter()
+                   .each(function(d,i){
+                        if(btn_variables.includes(d)){
+                           if(i == 1){
+                              d3.select(this).append("button")
+                              .insert("li")
+                              .text(function(d){  return d; })
+                              .style("padding","15.5px")
+                              .style("font-size", "13px")
+                              .style("list-style-type", "none")
+                           }
+                           else{
+                              d3.select(this).append("button").insert("li")
+                              .text(function(d){  return d; })
+                              .style("padding","15.5px")
+                              .style("font-size", "13px")
+                              .style("list-style-type", "none")
+                           }
+                        }
+                        else{
+                           d3.select(this).append("div")
+                           .text(function(d){ return d})
+                           .style("font-size", "20px")
+                           .style("font-weight", "bold")
+                        }
+                     })
+   
+   // TODO: Find a way to stuff the buttons into a list so we can make a sortable
+   
+      
+   // Sortable.create(btns, {animation: 150})
+     
+
             
-            d3.selectAll('button')
-               .call(d3.drag()
-                  .on("drag", dragged))
-
-      function dragged(d) {
-         console.log(this.parentNode)
-         d.x = d3.event.x, d.y = d3.event.y;
-
-      }
+               
 
    // Build tooltip
   // Inspiration from Stack Overflow: https://stackoverflow.com/questions/20644415/d3-appending-text-to-a-svg-rectangle
