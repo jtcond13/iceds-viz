@@ -194,7 +194,7 @@ d3.json('data/us_features.json').then(function(data) {
          return([x, btn_variables[i]])
       })
 
-      btn_coll = _.flatten(btn_coll)
+   btn_coll = _.flatten(btn_coll)
 
      d3.select(".screen2")
                .append("div")
@@ -202,18 +202,17 @@ d3.json('data/us_features.json').then(function(data) {
                      .selectAll("div")
                       .data(btn_coll)
                        .enter()
-                   .each(function(d,i){
+                  .each(function(d,i){
                         if(btn_variables.includes(d)){
                            if(i == 1){
                               d3.select(this).append("button")
-                              .insert("li")
                               .text(function(d){  return d; })
                               .style("padding","15.5px")
                               .style("font-size", "13px")
                               .style("list-style-type", "none")
                            }
                            else{
-                              d3.select(this).append("button").insert("li")
+                              d3.select(this).append("button")
                               .text(function(d){  return d; })
                               .style("padding","15.5px")
                               .style("font-size", "13px")
@@ -222,21 +221,53 @@ d3.json('data/us_features.json').then(function(data) {
                         }
                         else{
                            d3.select(this).append("div")
+                           .attr("id","num")
                            .text(function(d){ return d})
                            .style("font-size", "20px")
                            .style("font-weight", "bold")
                         }
                      })
    
-   // TODO: Find a way to stuff the buttons into a list so we can make a sortable
-   
       
-   // Sortable.create(btns, {animation: 150})
-     
+  var btns = d3.select(".button-container").node()
 
-            
-               
+  var sortable = Sortable.create(btns, {animation: 150,
+                          filter: "#num",
+                       // TODO: set minimum drag so button just over the number doesn't work   
+                          onEnd: evt => {
+                               var item = evt.item
+                               var nodes = item.parentNode.childNodes;
 
+                               nodes.forEach(function(n, i, arr){
+                                 // Check if this was the moved element
+                                 if(n.isSameNode(item)){
+                                  // ascending  
+                                    if(evt.newIndex > evt.oldIndex){
+                                       var x = evt.oldIndex
+                                       while(arr[x] != item){
+                                          if(Sortable.utils.is(arr[x],'button')){
+                                             n.parentNode.insertBefore(arr[x],arr[x-1])
+                                          }
+                                          x += 1
+                                       }
+                                    }
+                                  // descending 
+                                    else{
+                                       var x = evt.newIndex
+                                       while(x < nodes.length){
+                                          if(Sortable.utils.is(arr[x], 'button') && Sortable.utils.is(arr[x+1], '#num')){
+                                             n.parentNode.insertBefore(arr[x+1], arr[x])
+                                          }
+                                          x += 1
+                                       }
+                                    }
+                                 }
+                              })
+                           }
+                         });                              
+                        
+                     
+                                
    // Build tooltip
   // Inspiration from Stack Overflow: https://stackoverflow.com/questions/20644415/d3-appending-text-to-a-svg-rectangle
                
