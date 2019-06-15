@@ -2,6 +2,7 @@ var _ = require('lodash');
 var d3 = require('d3');
 var Sortable = require('sortablejs')
 
+
 d3.json('data/us_features.json').then(function(data) {
 
    var svg = d3.select(".content").append("svg");
@@ -233,38 +234,17 @@ d3.json('data/us_features.json').then(function(data) {
 
   var sortable = Sortable.create(btns, {animation: 150,
                           filter: "#num",
-                       // TODO: set minimum drag so button just over the number doesn't work   
-                          onEnd: evt => {
-                               var item = evt.item
-                               var nodes = item.parentNode.childNodes;
-
-                               nodes.forEach(function(n, i, arr){
-                                 // Check if this was the moved element
-                                 if(n.isSameNode(item)){
-                                  // ascending  
-                                    if(evt.newIndex > evt.oldIndex){
-                                       var x = evt.oldIndex
-                                       while(arr[x] != item){
-                                          if(Sortable.utils.is(arr[x],'button')){
-                                             n.parentNode.insertBefore(arr[x],arr[x-1])
-                                          }
-                                          x += 1
-                                       }
-                                    }
-                                  // descending 
-                                    else{
-                                       var x = evt.newIndex
-                                       while(x < nodes.length){
-                                          if(Sortable.utils.is(arr[x], 'button') && Sortable.utils.is(arr[x+1], '#num')){
-                                             n.parentNode.insertBefore(arr[x+1], arr[x])
-                                          }
-                                          x += 1
-                                       }
-                                    }
-                                 }
-                              })
+                          swap: true,
+                          onMove: evt => {
+                             // prevent button from being swapped with a number
+                             if(Sortable.utils.is(evt.related, '#num')){
+                                return false
+                             }
+                             else{
+                                return true
+                             }
                            }
-                         });                              
+                        });                              
                         
                      
                                 
