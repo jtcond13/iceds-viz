@@ -9,7 +9,9 @@
     "lodash": "^4.17.11",
     "sortablejs": "^1.10.0-rc2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "budo": "^11.6.2"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

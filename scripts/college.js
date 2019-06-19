@@ -18,7 +18,7 @@ d3.json('data/us_features.json').then(function(data) {
       .attr("class", element.properties['name'])
       .on("mouseover", function(){
          d3.select(this)
-            .attr("fill", "#82edcd")
+            .attr("fill", "#0e47a3")
          d3.select('.region').text(element.properties['name'])
       })
       .on("mouseout", function(){
@@ -88,6 +88,11 @@ d3.json('data/us_features.json').then(function(data) {
             return `matrix(${scale_factor} 0 0 ${scale_factor} ${xTranslate(scale_factor)} ${yTranslate(scale_factor)})`
       }
 
+      function zoomed() {
+         var transform = d3.event.transform;
+          d3.selectAll("path").attr("transform", transform.toString())
+          d3.selectAll("svg").attr("transform", transform.toString())
+            };
 
       d3.json('data/state_features.json').then(function(state){
 
@@ -105,12 +110,14 @@ d3.json('data/us_features.json').then(function(data) {
                return (regions[current_region].indexOf(value.properties.NAME) > -1)
             })
             
-         d3.csv('data/college.csv').then(function(college) {
+           
+         
+      d3.csv('data/college.csv').then(function(college) {
      
-               var local_colleges = college.filter((value) => {
+            var local_colleges = college.filter((value) => {
                   return d3.geoContains(region.geometry, [value['longitude'], value['latitude']])
-               })
-                 
+            })
+
           // add the states for the selected region
          local_states.forEach(element => {
             
@@ -119,7 +126,9 @@ d3.json('data/us_features.json').then(function(data) {
                   .attr("stroke", "white")
                   .attr("fill", "#d9e2df")
                   .attr("opacity", .6)
+                  .attr("class", element.properties['NAME'])
                   .attr("transform", getTransformFactor(region))
+
             });       
 
              d3.select(".screen2")
@@ -128,6 +137,12 @@ d3.json('data/us_features.json').then(function(data) {
                   .style("grid-column", "4 / 8")
                   .style("grid-row", "3 / 3")
                   .style("overflow-x", "auto")
+         
+            var zoom = d3.zoom()
+                  .on("zoom", zoomed);
+            
+            d3.select(".map")
+              .call(zoom)
             
             var my_variables = ['name', 'total.enrollment', 'avg_sat', 'avg_act', 'three_year_tuition_growth', 'admission_rate']
 
@@ -229,10 +244,10 @@ d3.json('data/us_features.json').then(function(data) {
                         }
                      })
    
-      
+  // Sortable Btns    
   var btns = d3.select(".button-container").node()
 
-  var sortable = Sortable.create(btns, {animation: 150,
+  Sortable.create(btns, {animation: 150,
                           filter: "#num",
                           swap: true,
                           onMove: evt => {
@@ -245,13 +260,11 @@ d3.json('data/us_features.json').then(function(data) {
                              }
                            }
                         });                              
-                        
-                     
-                                
+
    // Build tooltip
   // Inspiration from Stack Overflow: https://stackoverflow.com/questions/20644415/d3-appending-text-to-a-svg-rectangle
                
-         svg.selectAll('g')
+       svg.selectAll('g')
                .data(local_colleges)
                .enter().append('g')
                .attr("class", function(d){
@@ -337,8 +350,7 @@ d3.json('data/us_features.json').then(function(data) {
                   })
          })
 
-         
-
+       
         })
       
          

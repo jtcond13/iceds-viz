@@ -39630,6 +39630,7 @@ d3.json('data/us_features.json').then(function(data) {
                   .attr("d", path(element.geometry))
                   .attr("stroke", "white")
                   .attr("fill", "#d9e2df")
+                  .attr("id", "states")
                   .attr("opacity", .6)
                   .attr("transform", getTransformFactor(region))
             });       
@@ -39744,52 +39745,20 @@ d3.json('data/us_features.json').then(function(data) {
       
   var btns = d3.select(".button-container").node()
 
-  var sortable = Sortable.create(btns, {animation: 150,
+  Sortable.create(btns, {animation: 150,
                           filter: "#num",
                           swap: true,
                           onMove: evt => {
+                             // prevent button from being swapped with a number
                              if(Sortable.utils.is(evt.related, '#num')){
                                 return false
                              }
                              else{
                                 return true
                              }
-                          }
-                       // TODO: set minimum drag to prevent unhandled sorts
-                        //   onEnd: evt => {
-                        //        var item = evt.item
-                        //        var nodes = item.parentNode.childNodes;
-
-                        //        nodes.forEach(function(n, i, arr){
-                        //          // Check if this was the moved element
-                        //          if(n.isSameNode(item)){
-                        //           // ascending  
-                        //             if(evt.newIndex > evt.oldIndex){
-                        //                var x = evt.oldIndex
-                        //                while(arr[x] != item){
-                        //                   if(Sortable.utils.is(arr[x],'button')){
-                        //                      n.parentNode.insertBefore(arr[x],arr[x-1])
-                        //                   }
-                        //                   x += 1
-                        //                }
-                        //             }
-                        //           // descending 
-                        //             else{
-                        //                var x = evt.newIndex
-                        //                while(x < nodes.length){
-                        //                   if(Sortable.utils.is(arr[x], 'button') && Sortable.utils.is(arr[x+1], '#num')){
-                        //                      n.parentNode.insertBefore(arr[x+1], arr[x])
-                        //                   }
-                        //                   x += 1
-                        //                }
-                        //             }
-                        //          }
-                        //       })
                            }
-                         );                              
-                        
-                     
-                                
+                        });                              
+                               
    // Build tooltip
   // Inspiration from Stack Overflow: https://stackoverflow.com/questions/20644415/d3-appending-text-to-a-svg-rectangle
                
