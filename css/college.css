@@ -1,5 +1,6 @@
 html {
     height: 100vh;
+    background-color: #F3F5F4;
   }
 body {
     height: inherit;
@@ -14,10 +15,11 @@ svg {
     grid-template-rows: 1fr 10fr 1fr;
     height: 100vh;
     position: relative;
+
   }
 .screen2 { 
     display: grid;
-    grid-template-columns: 1fr 4.5fr 2.5fr .25fr 2fr 2fr 2fr .25fr;
+    grid-template-columns: 1fr 4.5fr 2.5fr .25fr 2fr 2fr 1.5fr .25fr;
     grid-template-rows: 1fr 4fr 10.5fr;
     height: 100vh;
     position: relative;
@@ -27,6 +29,9 @@ svg {
     grid-row: 1 / 1;
     font-size: 1.5em;
   }
+.region {
+    color: #5E7DC7;
+}
 .content {
     grid-column: 2 / 2;
     grid-row: 2 / 2;
@@ -38,6 +43,10 @@ svg {
     grid-row: 3 / 3;
     /* Adding units to prevent weird Safari cut-off */
     height: 72.5vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }
 .button-container {
     grid-column: 1 / 8;
@@ -46,6 +55,44 @@ svg {
     justify-content: space-around;
     align-items: safe center;
 }
-
+.header {
+    grid-area: 1 / 1 / 1 / 7;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: safe center;
+    font-size: 20px;
+}
+.subtext {
+    font-size: 16px;
+}
+.goback {
+    grid-area: 1 / 7 / 1 / 8;
+    display: flex;
+    justify-content: center;
+    align-items: safe center;
+    font-size: 18px;
+    font-weight: bold;
+    border: .5px solid #967972;
+    background-color: #ddf0e1;
+}
+button {
+    -webkit-appearance: none;
+    border: .5px solid #967972;
+    border-radius: 4px;
+    background-color: #ddf0e1;
+    box-shadow: none;
+}
+.controls > button {
+    font-size: 16px;
+    padding: auto;
+    margin: none;
+    border: auto;
+    background-color: #d5ebe2;
+    width: auto;
+}
+#zoomin {
+    width: 21px;
+}
 
 

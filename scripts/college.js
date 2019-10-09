@@ -13,12 +13,12 @@ d3.json('data/us_features.json').then(function(data) {
    
       svg.append("path")
       .attr("d", path(element.geometry))
-      .attr("stroke", "white")
+      .attr("stroke", "#967972")
       .attr("fill", "#d9e2df")
       .attr("class", element.properties['name'])
       .on("mouseover", function(){
          d3.select(this)
-            .attr("fill", "#0e47a3")
+            .attr("fill", "#6D9186")
          d3.select('.region').text(element.properties['name'])
       })
       .on("mouseout", function(){
@@ -53,13 +53,10 @@ d3.json('data/us_features.json').then(function(data) {
          .classed("content", false)
          .classed("map", true); 
             
-      
-      var svg = d3.select(".map").append("svg");
+      // adding 'g' to allow for zoom in Safari/IE
+      var svg = d3.select(".map").append("svg").append('g').attr("class", "g")
       var svgBox = document.getElementsByTagName("svg")[0];      
       var path = d3.geoPath().projection(projection);
-
-    
-
       var centroid = path.centroid(region.geometry);
 
       function yTranslate(factor) {
@@ -86,15 +83,9 @@ d3.json('data/us_features.json').then(function(data) {
              var scale_factor = 1.2
           }
             return `matrix(${scale_factor} 0 0 ${scale_factor} ${xTranslate(scale_factor)} ${yTranslate(scale_factor)})`
-      }
+      }    
 
-      function zoomed() {
-         var transform = d3.event.transform;
-          d3.selectAll("path").attr("transform", transform.toString())
-          d3.selectAll("svg").attr("transform", transform.toString())
-            };
-
-      d3.json('data/state_features.json').then(function(state){
+      d3.json('data/state_features.json').then(function(state, svgBox){
 
          // Removing Alaska and Hawaii to keep scale reasonable in the West
             const regions = {
@@ -109,9 +100,7 @@ d3.json('data/us_features.json').then(function(data) {
                var current_region = region.properties['name']
                return (regions[current_region].indexOf(value.properties.NAME) > -1)
             })
-            
-           
-         
+
       d3.csv('data/college.csv').then(function(college) {
      
             var local_colleges = college.filter((value) => {
@@ -123,13 +112,28 @@ d3.json('data/us_features.json').then(function(data) {
             
                svg.append("path")
                   .attr("d", path(element.geometry))
-                  .attr("stroke", "white")
+                  .attr("stroke", "#967972")
                   .attr("fill", "#d9e2df")
                   .attr("opacity", .6)
-                  .attr("class", element.properties['NAME'])
-                  .attr("transform", getTransformFactor(region))
+                  .attr("id", element.properties['NAME'])
+                  .attr("transform", getTransformFactor(region))   
 
-            });       
+            });   
+
+      // map labels
+            
+            svg.append("text")
+               .attr("x", 20)
+               .attr("y", 20)
+               .attr("font-size", "16px")
+               .attr("font-weight", "bold")
+               .text(region.properties['name'] + " Region Map")
+
+            svg.append("text")
+               .attr("x", 20)
+               .attr("y", 36)
+               .attr("font-size", "11px")
+               .text("Hover to identify a university")
 
              d3.select(".screen2")
                   .append("div")
@@ -137,43 +141,18 @@ d3.json('data/us_features.json').then(function(data) {
                   .style("grid-column", "4 / 8")
                   .style("grid-row", "3 / 3")
                   .style("overflow-x", "auto")
-         
-            var zoom = d3.zoom()
-                  .on("zoom", zoomed);
-            
-            d3.select(".map")
-              .call(zoom)
-            
-            var my_variables = ['name', 'total.enrollment', 'avg_sat', 'avg_act', 'three_year_tuition_growth', 'admission_rate']
+                  
+            var my_variables = ['name', 'graduation_rate', 'percent_out-_of-_state_freshmen', 'percent_receiving_(School-Provided)_financial_aid', 'three_year_tuition_growth', 'admission_rate']
 
             var table_variables = Object.keys(local_colleges[0]).filter((value) => {
                return my_variables.includes(value)
             });
 
-
             var table_data = _.map(local_colleges, function(x) {
                return _.pick(x, my_variables)
             })
-         
-   // Format variables
-            var table_variables = Object.keys(table_data[0]).map(x => {
-               var y = x.replace(/_|\./g, ' ')
-               if(y.search(/\s/g) < 0){
-                  return y.slice(0,1).toUpperCase() + y.slice(1)
-               }
-               else if(y.search(/sat|act/) > 0){
-                  var z = y.split(' ')
-                  return z[0].slice(0,1).toUpperCase() + z[0].slice(1) + ' ' + z[1].slice(0,1).toUpperCase() + z[1].slice(1).toUpperCase() 
-               }
-               else if(y.search(/tuition/) > 0){
-                  var z = y.split(' ')
-                  return "2010 - 2013 " + z[2].slice(0,1).toUpperCase() + z[2].slice(1) + ' ' + z[3].slice(0,1).toUpperCase() + z[3].slice(1) 
-               }
-               else {
-                  var z = y.split(' ')
-                  return z[0].slice(0,1).toUpperCase() + z[0].slice(1) + ' ' + z[1].slice(0,1).toUpperCase() + z[1].slice(1)
-               }  
-            })
+
+            var table_variables = Object.keys(table_data[0]).map(transformVar)
 
    // Build table 
             d3.select(".colleges-table")
@@ -185,11 +164,13 @@ d3.json('data/us_features.json').then(function(data) {
                           .append("tr")
 
    // Data Rows                      
-            d3.selectAll("tr").each(function(d){
+            d3.selectAll("tr").each(function(d, i){
                         d3.select(this).selectAll("td")
-                        .data(function(d) { return Object.values(d); })
+                        .data(function(d) { 
+                           return Object.values(d); })
                         .enter().append("td")
-                           .text(function(d) { return d; });
+                           .text(function(d) { 
+                              return d; });
             })
 
    // Header Rows
@@ -210,7 +191,7 @@ d3.json('data/us_features.json').then(function(data) {
          return([x, btn_variables[i]])
       })
 
-   btn_coll = _.flatten(btn_coll)
+     btn_coll = _.flatten(btn_coll)
 
      d3.select(".screen2")
                .append("div")
@@ -243,7 +224,7 @@ d3.json('data/us_features.json').then(function(data) {
                            .style("font-weight", "bold")
                         }
                      })
-   
+
   // Sortable Btns    
   var btns = d3.select(".button-container").node()
 
@@ -252,19 +233,43 @@ d3.json('data/us_features.json').then(function(data) {
                           swap: true,
                           onMove: evt => {
                              // prevent button from being swapped with a number
-                             if(Sortable.utils.is(evt.related, '#num')){
+                             if(Sortable.utils.is(evt.related, '#num')) {
                                 return false
                              }
-                             else{
+                             else {
                                 return true
                              }
+                           },
+                           onEnd: e => {
+                              calculateColor()
+                              sortColleges()
                            }
-                        });                              
+                        });
+  // Initial Sort
+       sortColleges()
+
+   // Add header
+    d3.select('.screen2')
+      .append('div')
+      .attr("class", "header")
+      .html("Build your own College Ratings for the...  <b>" + region.properties['name'])
+
+    d3.select('.header')
+      .append('div')
+      .attr("class", "subtext")
+      .html("Drag and drop variables to reorder the rankings.")
+
+   // back link
+    d3.select('.screen2')
+      .append('a')
+      .attr('class', 'goback')
+      .attr('href', '.')
+      .html('Back')
 
    // Build tooltip
   // Inspiration from Stack Overflow: https://stackoverflow.com/questions/20644415/d3-appending-text-to-a-svg-rectangle
                
-       svg.selectAll('g')
+       svg.selectAll('g:not(.g)')
                .data(local_colleges)
                .enter().append('g')
                .attr("class", function(d){
@@ -285,9 +290,8 @@ d3.json('data/us_features.json').then(function(data) {
                .text( function (d) { 
                   return d.name })
                .attr("font-size", "10px")
-               .attr("z-index", 20)
 
-      svg.selectAll('g')
+      svg.selectAll('g:not(.g)')
          .append('rect')
                .attr("x", function(d){
                   return projection([d.longitude, d.latitude])[0] - 30;
@@ -303,10 +307,56 @@ d3.json('data/us_features.json').then(function(data) {
                   var tmp = d3.select(this).node().previousSibling.getBBox();
                   return tmp['height']
                })
-               .attr("stroke", "green")
+               .attr("stroke", "#0d4f1e")
                .attr("transform", getTransformFactor(region))
-               .style("fill", "gray")
+               .style("fill", "#cae3d0")
                .attr("opacity", .4)
+
+ 
+         // Create color scale
+         var dotScale = d3.scaleSequential(d3.interpolatePurples)
+            .domain(d3.extent(table_data, d => {
+            var order = _.map(d3.selectAll("button").nodes(), x => { return x.innerHTML.trim() })
+            var weights = [10, 7, 4, 2, 1],
+            i = 1,
+            score = 0;
+            for(i = 1; i < 6; i++){
+            if (transformVar(Object.getOwnPropertyNames(d)[i]).trim() != '2010-2013 Tuition Growth'){
+               score += weights[order.indexOf(transformVar(Object.getOwnPropertyNames(d)[i]).trim())] * parseFloat(Object.values(d)[i]);
+            }
+            else {
+               score -= weights[order.indexOf(transformVar(Object.getOwnPropertyNames(d)[i]).trim())] * parseFloat(Object.values(d)[i]);
+            }
+         }
+         return score
+         })) 
+
+      // To be called after buttons are swapped
+      function calculateColor(){
+         d3.selectAll('circle')
+         .style("fill", function(d){
+            var my_variables = ['name', 'graduation_rate', 'percent_out-_of-_state_freshmen', 'percent_receiving_(School-Provided)_financial_aid', 'three_year_tuition_growth', 'admission_rate']
+            var y = _.pickBy(d, (value, key) => my_variables.includes(key))
+            var order = _.map(d3.selectAll(".button-container > button").nodes(), x => { return x.innerHTML.trim() }),
+            weights = [10, 7, 4, 2, 1],
+            i = 1,
+            score = 0;
+            for(i = 1; i < 6; i++){
+            if(transformVar(Object.getOwnPropertyNames(y)[i]).trim() != '2010-2013 Tuition Growth'){
+               score += weights[order.indexOf(transformVar(Object.getOwnPropertyNames(y)[i]).trim())] * parseFloat(Object.values(y)[i]);
+            }
+            else{
+               score -= weights[order.indexOf(transformVar(Object.getOwnPropertyNames(y)[i]).trim())] * parseFloat(Object.values(y)[i]);
+            }
+          }
+          if(!score){
+             score = .5
+          }
+          return dotScale(score) 
+        })
+
+        
+   }
 
                // add the dots to the map
          svg.selectAll('circle')
@@ -336,28 +386,132 @@ d3.json('data/us_features.json').then(function(data) {
                         return r_factor
                   })
                   .attr("transform", getTransformFactor(region))
-                  .style("fill", "blue")
-                  .style("opacity", .5)
+                  .style("fill", function(d){
+                     var my_variables = ['name', 'graduation_rate', 'percent_out-_of-_state_freshmen', 'percent_receiving_(School-Provided)_financial_aid', 'three_year_tuition_growth', 'admission_rate']
+                     var y = _.pickBy(d, (value, key) => my_variables.includes(key))
+                     var order = _.map(d3.selectAll("button").nodes(), x => { return x.innerHTML.trim() }),
+                     weights = [10, 7, 4, 2, 1],
+                     i = 1,
+                     score = 0;
+                     for(i = 1; i < 6; i++){
+                     if(transformVar(Object.getOwnPropertyNames(y)[i]).trim() != '2010-2013 Tuition Growth'){
+                        score += weights[order.indexOf(transformVar(Object.getOwnPropertyNames(y)[i]).trim())] * parseFloat(Object.values(y)[i]);
+                     }
+                     else{
+                        score -= weights[order.indexOf(transformVar(Object.getOwnPropertyNames(y)[i]).trim())] * parseFloat(Object.values(y)[i]);
+                     }
+                  }
+                   if(!score){
+                      score = 3
+                   }
+                  return dotScale(score)
+                  })
+                  .style("opacity", .85)
                   .on("mouseover", function(d){
                      var thisCollege = "." + d.name.replace(/\s+|'|-/g, '').toLowerCase();
-                     d3.selectAll(thisCollege)
+                     // workaround to deal with rendering order issues
+                     d3.selectAll(thisCollege).each(function(){
+                        this.parentNode.appendChild(this);
+                     })
                         .style("opacity", 1) 
                   })
                   .on("mouseout", function(d){
                      var thisCollege = "." + d.name.replace(/\s+|'|-/g, '').toLowerCase();
                      d3.selectAll(thisCollege)
+                        .each(function(){
+                           this.parentNode.removeChild(this);
+                        })
                         .style("opacity", 0) 
                   })
+
+            // Zoom buttons and behavior
+            var cnt = d3.select(".map").insert('div')
+               .attr("class", "controls")
+
+
+            var mapZoom = d3.zoom()
+                            .scaleExtent([1,3])
+                            .on("zoom", zoomed)
+
+            function zoomed() {
+               svg.attr("transform", d3.event.transform)
+            }
+
+            cnt.append("button")
+               .text("+")
+               .attr("id", "zoomin")
+               .on("click", function() {
+                  mapZoom.scaleBy(svg.transition().duration(500), 1.1)
+               })
+
+            cnt.append("button")
+               .text("-")
+               .attr("id", "zoomin")
+               .on("click", function(){
+                  mapZoom.scaleBy(svg.transition().duration(500), 0.9)
+               })
+
+
          })
-
-       
+        // Consider changing this to z-scores
+         function sortColleges() {
+            var order = _.map(d3.selectAll(".button-container > button").nodes(), x => { return x.innerHTML.trim() });
+            d3.selectAll("tr").sort((a,b) => {
+               if(a && b){
+                  var weights = [10, 7, 4, 2, 1],
+                  i = 1,
+                  a_score = 0,
+                  b_score = 0;
+                  for(i = 1; i < 6; i++){
+                    if(transformVar(Object.getOwnPropertyNames(a)[i]).trim() != '2010-2013 Tuition Growth'){
+                     a_score += weights[order.indexOf(transformVar(Object.getOwnPropertyNames(a)[i]).trim())] * parseFloat(Object.values(a)[i]);
+                     b_score +=  weights[order.indexOf(transformVar(Object.getOwnPropertyNames(b)[i]).trim())] * parseFloat(Object.values(b)[i]);
+                    }
+                    else{
+                     a_score -= weights[order.indexOf(transformVar(Object.getOwnPropertyNames(a)[i]).trim())] * parseFloat(Object.values(a)[i]);
+                     b_score -=  weights[order.indexOf(transformVar(Object.getOwnPropertyNames(b)[i]).trim())] * parseFloat(Object.values(b)[i]);
+                    }
+                    
+                  }       
+                  return(b_score - a_score)
+               }
+               else{
+                  return 0
+               }
+            })    
+         }
         })
-      
-         
-
-      
    }
 
+          
+   // Format variables function 
+         function transformVar(x) {
+               var y = x.replace(/_|\./g, ' '),
+               z = y.split(' '),
+               i,
+               last = "";
+            for(i = 0; i < z.length; i++) {
+               if(z[i].slice(0,1) === "("){
+                  last +=  z[i].slice(0,1).toUpperCase() + z[i].slice(1,2).toUpperCase() + z[i].slice(2).toLowerCase() + " "
+               }
+               else if(z[i].slice(0,1) === "p"){
+                  last += "" 
+               }
+               else if(z[i].slice(0) === "three"){
+                  last += "2010-"
+               }
+               else if(z[i].slice(0) === "year"){
+                  last += "2013 "
+               }
+               else if(z[i].slice(-1) === "-"){
+                  last +=  z[i].slice(0,1).toUpperCase() + z[i].slice(1).toLowerCase()
+               }
+               else{
+                  last +=  z[i].slice(0,1).toUpperCase() + z[i].slice(1).toLowerCase() + " "
+               }
+            }
+            return last
+            }
 });
 
 
