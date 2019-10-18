@@ -18,7 +18,7 @@ d3.json('data/us_features.json').then(function(data) {
       .attr("class", element.properties['name'])
       .on("mouseover", function(){
          d3.select(this)
-            .attr("fill", "#6D9186")
+            .attr("fill", "#1FA62E")
          d3.select('.region').text(element.properties['name'])
       })
       .on("mouseout", function(){
@@ -40,9 +40,11 @@ d3.json('data/us_features.json').then(function(data) {
 
       d3.selectAll("svg")
        .remove()
-         
+
       changeLayout(region)  
+   
    };
+
 
    function changeLayout(region) {
       d3.select(".screen1")
@@ -135,6 +137,7 @@ d3.json('data/us_features.json').then(function(data) {
                .attr("font-size", "11px")
                .text("Hover to identify a university")
 
+      // data grid
              d3.select(".screen2")
                   .append("div")
                   .attr("class", "colleges-table")
@@ -162,6 +165,11 @@ d3.json('data/us_features.json').then(function(data) {
                           .data(table_data)
                           .enter()
                           .append("tr")
+   
+   // Table title
+            d3.select("table")
+               .append('caption')
+               .html("<div style='background-color:#fcbdae; border:1.2px solid #967972'> <b> Colleges & Universities </b> <br> <div style='font-size:11px'>Scroll Down to View More</div></div>")
 
    // Data Rows                      
             d3.selectAll("tr").each(function(d, i){
@@ -170,7 +178,8 @@ d3.json('data/us_features.json').then(function(data) {
                            return Object.values(d); })
                         .enter().append("td")
                            .text(function(d) { 
-                              return d; });
+                              return d; })
+                        .style("font-size", "11.8px");
             })
 
    // Header Rows
@@ -182,6 +191,9 @@ d3.json('data/us_features.json').then(function(data) {
                            .enter().append("td")
                               .text(function(d) { return d; })
                      .style("font-weight", "bold")
+                     .style("font-size", "13px")
+                     .style("background-color", "#cce3cf")
+                     .style("border", "1.2px solid #967972")
 
    // Buttons
       var btn_variables = table_variables.slice(1, 6)
@@ -257,14 +269,14 @@ d3.json('data/us_features.json').then(function(data) {
     d3.select('.header')
       .append('div')
       .attr("class", "subtext")
-      .html("Drag and drop variables to reorder the rankings.")
+      .html("<div style='font-size:12px'>Drag and drop variables to reorder the rankings.</div>")
 
    // back link
     d3.select('.screen2')
       .append('a')
       .attr('class', 'goback')
       .attr('href', '.')
-      .html('Back')
+      .html('Back to Map')
 
    // Build tooltip
   // Inspiration from Stack Overflow: https://stackoverflow.com/questions/20644415/d3-appending-text-to-a-svg-rectangle
@@ -312,9 +324,9 @@ d3.json('data/us_features.json').then(function(data) {
                .style("fill", "#cae3d0")
                .attr("opacity", .4)
 
- 
+         
          // Create color scale
-         var dotScale = d3.scaleSequential(d3.interpolatePurples)
+         var dotScale = d3.scaleSequential(d3.interpolateRgb(d3.rgb(255, 255, 255), d3.rgb(217, 58, 20)))
             .domain(d3.extent(table_data, d => {
             var order = _.map(d3.selectAll("button").nodes(), x => { return x.innerHTML.trim() })
             var weights = [10, 7, 4, 2, 1],
@@ -329,7 +341,7 @@ d3.json('data/us_features.json').then(function(data) {
             }
          }
          return score
-         })) 
+         }))
 
       // To be called after buttons are swapped
       function calculateColor(){
@@ -424,6 +436,10 @@ d3.json('data/us_features.json').then(function(data) {
                         .style("opacity", 0) 
                   })
 
+            d3.select(".screen2")
+               .append("div")
+               .attr("class", "right-corner")
+            
             // Zoom buttons and behavior
             var cnt = d3.select(".map").insert('div')
                .attr("class", "controls")
@@ -481,7 +497,9 @@ d3.json('data/us_features.json').then(function(data) {
             })    
          }
         })
-   }
+   
+   
+      }
 
           
    // Format variables function 
