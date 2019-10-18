@@ -10,7 +10,9 @@
     "sortablejs": "^1.10.0-rc2"
   },
   "devDependencies": {
-    "budo": "^11.6.2"
+    "budo": "^11.6.2",
+    "common-shakeify": "^0.6.2",
+    "tinyify": "^2.5.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
